@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>opentoutatice-ecm.migrations</groupId>
 	<artifactId>opentoutatice-addon-migration</artifactId>
-	<version>4.7-SNAPSHOT</version>
+	<version>4.7</version>
 
 	<name>osivia-opentoutatice-migration</name>
 	<description>Allows migrations jobs of Opentoutatice</description>
@@ -112,7 +110,7 @@
 		<url>https://github.com/osivia/osivia-opentoutatice-migration</url>
 		<connection>scm:git:ssh://git@github.com/osivia/osivia-opentoutatice-migration.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/osivia/osivia-opentoutatice-migration.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>4.7</tag>
 	</scm>
 
 	<distributionManagement>
