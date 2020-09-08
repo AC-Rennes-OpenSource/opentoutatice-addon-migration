@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-Vendor: Osivia
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Bundle-Version: 1.0
+Bundle-Name: osivia-opentoutatice-migrations
+Nuxeo-WebModule: org.nuxeo.ecm.webengine.jaxrs.scan.DynamicApplicationFactory
+Nuxeo-Component: OSGI-INF/extensions/org.osivia.migratio
+ n.service.RunnerLauncherService.xml,OSGI-INF/extensions/persistence/n
+ xplaceful-service-contrib.xml,
+ OSGI-INF/extensions/authentification-contrib.xml
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.osivia.opentoutatice.migrations
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+

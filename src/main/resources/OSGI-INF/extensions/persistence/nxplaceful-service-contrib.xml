@@ -1,0 +1,14 @@
+<component name="org.osivia.migration.persistence.placeful">
+
+  <require>org.nuxeo.ecm.platform.ec.notification.placeful</require>
+
+  <extension target="org.nuxeo.ecm.platform.ec.placeful.PlacefulService"
+    point="annotations">
+
+    <annotation>
+      <class>org.osivia.migration.persistence.ejb.OttcMigrations</class>
+    </annotation>
+
+  </extension>
+
+ </component>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<component name="org.osivia.migration.service.RunnerLauncherService.contrib" version="1.0">
+
+	<require>org.osivia.migration.service.RunnerLauncherService</require>
+	
+	<extension target="org.osivia.migration.service.RunnerLauncherService" point="runners">
+	
+		<!-- <runner clazz="org.osivia.migration.runners.LocalLivesRunner" force="${ottc.migration.facets.force}" enabled="${ottc.migration.facets.enabled}"
+				runnerId="org.osivia.migration.localLives" migrationVersion="3.2.2"/>  
+		
+		<runner clazz="org.osivia.migration.runners.RemoteProxiesRunner" force="${ottc.migration.facets.force}" enabled="${ottc.migration.facets.enabled}"
+				runnerId="org.osivia.migration.remoteProxies" migrationVersion="3.2.2"/>  
+				
+		<runner clazz="org.osivia.migration.runners.ThumbnailPictureRunner" force="${ottc.migration.pictures.force}" enabled="${ottc.migration.pictures.enabled}"
+				runnerId="org.osivia.migration.pictures" migrationVersion="3.2.2"/> 
+				
+	    <runner clazz="org.osivia.migration.runners.PostAttachedFileRunner" force="${ottc.migration.posts.force}" enabled="${ottc.migration.posts.enabled}"
+				runnerId="org.osivia.migration.posts" migrationVersion="3.2.2"/> 
+				
+		<runner clazz="org.osivia.migration.runners.ForumsRunner" force="${ottc.migration.forums.force}" enabled="${ottc.migration.forums.enabled}"
+		        runnerId="org.osivia.migration.forums" migrationVersion="3.0.12" />
+		        
+		<runner clazz="org.osivia.migration.runners.AnnoncesRunner" force="${ottc.migration.annonces.force}" enabled="${ottc.migration.annonces.enabled}"
+		        runnerId="org.osivia.migration.annonces" migrationVersion="3.0.12" /> -->
+		        
+		<runner clazz="org.osivia.migration.runners.PortalSiteThumbnailRunner" force="false" enabled="true"
+		        runnerId="org.osivia.migration.ps.thumbnail" migrationVersion="4.7" />
+		
+	</extension>
+
+</component>

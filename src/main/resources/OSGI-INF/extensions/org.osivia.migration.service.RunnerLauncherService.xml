@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<component name="org.osivia.migration.service.RunnerLauncherService" version="1.0">
+
+  <implementation class="org.osivia.migration.service.RunnerLauncherServiceImpl" />
+
+  <service>
+      <provide interface="org.osivia.migration.service.RunnerLauncherService" />
+  </service>
+  
+  <extension-point name="runners">
+		<object class="org.osivia.migration.service.RunnerDescriptor" />
+  	</extension-point>
+    
+</component>

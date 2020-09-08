@@ -1,0 +1,14 @@
+osivia-migration.target=.
+nuxeo.template.includes=opentoutatice
+
+ottc.migration.pictures.enabled=true
+ottc.migration.facets.enabled=true
+ottc.migration.posts.enabled=true
+ottc.migration.forums.enabled=false
+ottc.migration.annonces.enabled=true
+
+ottc.migration.facets.force=true
+ottc.migration.pictures.force=true
+ottc.migration.posts.force=true
+ottc.migration.forums.force=false
+ottc.migration.annonces.force=true
