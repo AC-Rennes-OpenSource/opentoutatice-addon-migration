@@ -39,6 +39,7 @@ public class PortalSiteThumbnailRunner extends AbstractRunner {
     @Override
     public int setInputs(int limit) {
         this.inputs = this.session.query(LIVE_PSP_QUERY, limit);
+        this.inputs = removeDocsWithError(this.inputs);
 
         int size = this.inputs.size();
         this.totalInputs += size;
@@ -49,32 +50,42 @@ public class PortalSiteThumbnailRunner extends AbstractRunner {
     @Override
     public void run() throws ClientException {
         for (DocumentModel ps : this.inputs) {
-            // Set ttcn:picture to ttc:vignette resizing it
-            DocumentModel treatedPs = resizePictureToThumbnail(ps);
-            if (treatedPs != null) {
-                this.session.saveDocument(treatedPs);
-                // Publish if necessary
-                if (ps.hasFacet("isLocalPublishLive")) {
+            try {
+                // Set ttcn:picture to ttc:vignette resizing it
+                DocumentModel treatedPs = resizePictureToThumbnail(ps);
+                if (treatedPs != null) {
+                    this.session.saveDocument(treatedPs);
+                    // Publish if necessary
                     String liveVersionLabel = ps.getVersionLabel();
 
                     DocumentModel proxy = ToutaticeDocumentHelper.getProxy(this.session, treatedPs, null);
-                    String proxyVersionLabel = proxy.getVersionLabel();
+                    if (proxy != null) {
+                        String proxyVersionLabel = proxy.getVersionLabel();
 
-                    if (StringUtils.equals(liveVersionLabel, proxyVersionLabel)) {
-                        // set onLine teated live
-                        setOnLine(treatedPs);
-                    } else {
-                        // Live is different from proxy: treat (latest) version
-                        log.debug(String.format("Treating last version of [%s]...", treatedPs.getPathAsString()));
+                        if (StringUtils.equals(liveVersionLabel, proxyVersionLabel)) {
+                            // set onLine treated live
+                            setOnLine(treatedPs);
+                        } else {
+                            // Live is different from proxy: treat (latest) version
+                            log.debug(String.format("Treating last version of [%s]...", treatedPs.getPathAsString()));
 
-                        DocumentModel latestVersion = ToutaticeDocumentHelper.getLatestDocumentVersion(ps, this.session);
-                        latestVersion.putContextData(CoreSession.ALLOW_VERSION_WRITE, Boolean.TRUE);
-                        latestVersion = resizePictureToThumbnail(latestVersion);
-                        this.session.saveDocument(latestVersion);
+                            DocumentModel latestVersion = ToutaticeDocumentHelper.getLatestDocumentVersion(ps, this.session);
+                            if (latestVersion != null) {
+                                latestVersion.putContextData(CoreSession.ALLOW_VERSION_WRITE, Boolean.TRUE);
+                                latestVersion = resizePictureToThumbnail(latestVersion);
+                                this.session.saveDocument(latestVersion);
+                            } else {
+                                log.warn(String.format("PortalSite [%s] is in incoherent state: published but has no latest version", treatedPs.getPathAsString()));
+                            }
+                        }
                     }
+                    // Persist unitary
+                    this.session.save();
                 }
-                // Persist unitary
-                this.session.save();
+            } catch (Exception e) {
+                // Store
+                docsOnError.add(ps.getId());
+                throw new ClientException(e);
             }
         }
     }
