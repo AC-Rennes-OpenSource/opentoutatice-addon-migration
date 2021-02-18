@@ -10,6 +10,6 @@ package org.osivia.migration.service.rest;
  */
 public enum BatchMode {
 
-    analyze, execute;
+    analyze, execute, recovery;
 
 }

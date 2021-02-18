@@ -15,6 +15,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.runtime.api.Framework;
+import org.osivia.migration.service.rest.BatchMode;
 
 import fr.toutatice.ecm.platform.core.helper.ToutaticeDocumentHelper;
 
@@ -27,7 +28,10 @@ public class PortalSiteThumbnailRunner extends AbstractRunner {
     private static final Log log = LogFactory.getLog(PortalSiteThumbnailRunner.class);
 
     /** PortalSite with picture query. */
-    private static final String LIVE_PSP_QUERY = "SELECT ecm:uuid FROM PortalSite WHERE ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:currentLifeCycleState <> 'deleted' "
+    private static final String LIVE_PSP_QUERY = "SELECT * FROM PortalSite WHERE ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:currentLifeCycleState <> 'deleted' "
+            + "and ttcn:picture/data is not null and ttc:vignette/data is null";
+
+    private static final String PROXY_PSP_RECOVERY_QUERY = "SELECT * FROM PortalSite WHERE ecm:isProxy = 1 AND ecm:currentLifeCycleState <> 'deleted' "
             + "and ttcn:picture/data is not null and ttc:vignette/data is null";
 
     private static final AutomationService service = Framework.getService(AutomationService.class);
@@ -38,7 +42,8 @@ public class PortalSiteThumbnailRunner extends AbstractRunner {
 
     @Override
     public int setInputs(int limit) {
-        this.inputs = this.session.query(LIVE_PSP_QUERY, limit);
+        String query = BatchMode.recovery.name().equals(this.getMode()) ? PROXY_PSP_RECOVERY_QUERY : LIVE_PSP_QUERY;
+        this.inputs = this.session.query(query, limit);
         this.inputs = removeDocsWithError(this.inputs);
 
         int size = this.inputs.size();
@@ -49,43 +54,62 @@ public class PortalSiteThumbnailRunner extends AbstractRunner {
 
     @Override
     public void run() throws ClientException {
-        for (DocumentModel ps : this.inputs) {
-            try {
-                // Set ttcn:picture to ttc:vignette resizing it
-                DocumentModel treatedPs = resizePictureToThumbnail(ps);
-                if (treatedPs != null) {
-                    this.session.saveDocument(treatedPs);
-                    // Publish if necessary
-                    String liveVersionLabel = ps.getVersionLabel();
+        if (!BatchMode.recovery.name().equals(this.getMode())) {
+            for (DocumentModel ps : this.inputs) {
+                try {
+                    log.info(String.format("Treating PS: [%s]", ps.getPathAsString()));
+                    // Set ttcn:picture to ttc:vignette resizing it
+                    DocumentModel treatedPs = resizePictureToThumbnail(ps);
+                    if (treatedPs != null) {
+                        treatedPs = this.session.saveDocument(treatedPs);
 
-                    DocumentModel proxy = ToutaticeDocumentHelper.getProxy(this.session, treatedPs, null);
-                    if (proxy != null) {
-                        String proxyVersionLabel = proxy.getVersionLabel();
+                        DocumentModel proxy = ToutaticeDocumentHelper.getProxy(this.session, treatedPs, null);
+                        if (proxy != null) {
+                            log.debug(String.format("Published: treating last version of [%s]...", treatedPs.getPathAsString()));
 
-                        if (StringUtils.equals(liveVersionLabel, proxyVersionLabel)) {
-                            // set onLine treated live
-                            setOnLine(treatedPs);
-                        } else {
-                            // Live is different from proxy: treat (latest) version
-                            log.debug(String.format("Treating last version of [%s]...", treatedPs.getPathAsString()));
-
-                            DocumentModel latestVersion = ToutaticeDocumentHelper.getLatestDocumentVersion(ps, this.session);
-                            if (latestVersion != null) {
-                                latestVersion.putContextData(CoreSession.ALLOW_VERSION_WRITE, Boolean.TRUE);
-                                latestVersion = resizePictureToThumbnail(latestVersion);
-                                this.session.saveDocument(latestVersion);
+                            DocumentModel version = this.session.getSourceDocument(proxy.getRef());
+                            if (version != null && version.isVersion()) {
+                                version.putContextData(CoreSession.ALLOW_VERSION_WRITE, Boolean.TRUE);
+                                version = resizePictureToThumbnail(version);
+                                this.session.saveDocument(version);
                             } else {
-                                log.warn(String.format("PortalSite [%s] is in incoherent state: published but has no latest version", treatedPs.getPathAsString()));
+                                log.warn(String.format("PortalSite [%s] is in incoherent state: published but has no latest version",
+                                        treatedPs.getPathAsString()));
                             }
                         }
+                        // Persist unitary
+                        this.session.save();
+                    }
+                } catch (Exception e) {
+                    // Store
+                    docsOnError.add(ps.getId());
+                    throw new ClientException(e);
+                }
+            }
+        } else {
+            log.info("======[Recovery mode]=====");
+            for (DocumentModel ps : this.inputs) {
+                try {
+                    log.info(String.format("Treating PS: [%s]", ps.getPathAsString()));
+                    DocumentModel workingCopy = this.session.getWorkingCopy(ps.getRef());
+                    workingCopy = resizePictureToThumbnail(workingCopy);
+                    this.session.saveDocument(workingCopy);
+                    
+                    DocumentModel version = this.session.getSourceDocument(ps.getRef());
+                    if (version != null && version.isVersion()) {
+                        version.putContextData(CoreSession.ALLOW_VERSION_WRITE, Boolean.TRUE);
+                        version = resizePictureToThumbnail(version);
+                        this.session.saveDocument(version);
+                    } else {
+                        log.warn(String.format("PortalSite [%s] is in incoherent state: published but has no version", ps.getPathAsString()));
                     }
                     // Persist unitary
                     this.session.save();
+                } catch (Exception e) {
+                    // Store
+                    docsOnError.add(ps.getId());
+                    throw new ClientException(e);
                 }
-            } catch (Exception e) {
-                // Store
-                docsOnError.add(ps.getId());
-                throw new ClientException(e);
             }
         }
     }
