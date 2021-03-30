@@ -22,10 +22,13 @@
 		        runnerId="org.osivia.migration.forums" migrationVersion="3.0.12" />
 		        
 		<runner clazz="org.osivia.migration.runners.AnnoncesRunner" force="${ottc.migration.annonces.force}" enabled="${ottc.migration.annonces.enabled}"
-		        runnerId="org.osivia.migration.annonces" migrationVersion="3.0.12" /> -->
+		        runnerId="org.osivia.migration.annonces" migrationVersion="3.0.12" /> 
 		        
 		<runner clazz="org.osivia.migration.runners.PortalSiteThumbnailRunner" force="false" enabled="true"
-		        runnerId="org.osivia.migration.ps.thumbnail" migrationVersion="4.7" />
+		        runnerId="org.osivia.migration.ps.thumbnail" migrationVersion="4.7" /> -->
+		        
+		<runner clazz="org.osivia.migration.runners.AgriUserWorkspacesRunner" force="true" enabled="true"
+		        runnerId="org.osivia.migration.agri.uw" migrationVersion="4.7" />
 		
 	</extension>
 
