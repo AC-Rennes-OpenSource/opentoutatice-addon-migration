@@ -5,7 +5,7 @@
 
     <groupId>opentoutatice-ecm.migrations</groupId>
     <artifactId>opentoutatice-addon-migration</artifactId>
-    <version>RAB-4.7.3</version>
+    <version>RAB-4.7.4-SNAPSHOT</version>
 
     <name>osivia-opentoutatice-migration</name>
     <description>Allows migrations jobs of Opentoutatice</description>
