@@ -76,6 +76,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Bundle-Version>${eclipseVersion}-t${buildNumber}</Bundle-Version>
+                            <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.nuxeo.build</groupId>
